@@ -11,6 +11,9 @@ import { MyOwnCustomMaterialModule } from './my-own-custom-material.module';
 /* Feature Modules */
 import { ClipboardModule } from 'ngx-clipboard';
 
+/* my library */
+import { MyLibModule } from 'my-lib';
+
 import { NotFoundPageComponent } from './not-found-page.component';
 
 
@@ -24,6 +27,7 @@ import { NotFoundPageComponent } from './not-found-page.component';
     ClipboardModule,
     AppRoutingModule,
     MyOwnCustomMaterialModule,
+    MyLibModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
