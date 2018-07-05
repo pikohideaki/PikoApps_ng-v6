@@ -161,6 +161,244 @@
           }
         }
       }
+    },
+    "DominionApps": {
+      "root": "projects/DominionApps/",
+      "sourceRoot": "projects/DominionApps/src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/DominionApps",
+            "index": "projects/DominionApps/src/index.html",
+            "main": "projects/DominionApps/src/main.ts",
+            "polyfills": "projects/DominionApps/src/polyfills.ts",
+            "tsConfig": "projects/DominionApps/tsconfig.app.json",
+            "assets": [
+              "projects/DominionApps/src/favicon.ico",
+              "projects/DominionApps/src/assets"
+            ],
+            "styles": [
+              "projects/DominionApps/src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/DominionApps/src/environments/environment.ts",
+                  "with": "projects/DominionApps/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "DominionApps:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "DominionApps:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "DominionApps:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/DominionApps/src/test.ts",
+            "polyfills": "projects/DominionApps/src/polyfills.ts",
+            "tsConfig": "projects/DominionApps/tsconfig.spec.json",
+            "karmaConfig": "projects/DominionApps/karma.conf.js",
+            "styles": [
+              "projects/DominionApps/src/styles.css"
+            ],
+            "scripts": [],
+            "assets": [
+              "projects/DominionApps/src/favicon.ico",
+              "projects/DominionApps/src/assets"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/DominionApps/tsconfig.app.json",
+              "projects/DominionApps/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "DominionApps-e2e": {
+      "root": "projects/DominionApps-e2e/",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/DominionApps-e2e/protractor.conf.js",
+            "devServerTarget": "DominionApps:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "DominionApps:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": "projects/DominionApps-e2e/tsconfig.e2e.json",
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "NoshiroTools": {
+      "root": "projects/NoshiroTools/",
+      "sourceRoot": "projects/NoshiroTools/src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/NoshiroTools",
+            "index": "projects/NoshiroTools/src/index.html",
+            "main": "projects/NoshiroTools/src/main.ts",
+            "polyfills": "projects/NoshiroTools/src/polyfills.ts",
+            "tsConfig": "projects/NoshiroTools/tsconfig.app.json",
+            "assets": [
+              "projects/NoshiroTools/src/favicon.ico",
+              "projects/NoshiroTools/src/assets"
+            ],
+            "styles": [
+              "projects/NoshiroTools/src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/NoshiroTools/src/environments/environment.ts",
+                  "with": "projects/NoshiroTools/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "NoshiroTools:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "NoshiroTools:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "NoshiroTools:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/NoshiroTools/src/test.ts",
+            "polyfills": "projects/NoshiroTools/src/polyfills.ts",
+            "tsConfig": "projects/NoshiroTools/tsconfig.spec.json",
+            "karmaConfig": "projects/NoshiroTools/karma.conf.js",
+            "styles": [
+              "projects/NoshiroTools/src/styles.css"
+            ],
+            "scripts": [],
+            "assets": [
+              "projects/NoshiroTools/src/favicon.ico",
+              "projects/NoshiroTools/src/assets"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/NoshiroTools/tsconfig.app.json",
+              "projects/NoshiroTools/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "NoshiroTools-e2e": {
+      "root": "projects/NoshiroTools-e2e/",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/NoshiroTools-e2e/protractor.conf.js",
+            "devServerTarget": "NoshiroTools:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "NoshiroTools:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": "projects/NoshiroTools-e2e/tsconfig.e2e.json",
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "PikoApps"
