@@ -12,7 +12,7 @@ import { MyOwnCustomMaterialModule } from './my-own-custom-material.module';
 import { ClipboardModule } from 'ngx-clipboard';
 
 /* my library */
-import { MyLibModule } from 'my-lib';
+import { MyLibModule } from 'my-lib/my-lib';
 
 import { NotFoundPageComponent } from './not-found-page.component';
 

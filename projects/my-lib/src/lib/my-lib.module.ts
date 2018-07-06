@@ -7,15 +7,20 @@ import { AlertDialogComponent } from './alert-dialog.component';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 import { MessageDialogComponent } from './message-dialog.component';
 
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WaitingSpinnerComponent } from './waiting-spinner.component';
+
+import { AngularMaterialModule } from './angular-material.module';
+
+import { DataTableComponent } from './data-table/data-table.component';
+import { PagenationComponent } from './data-table/pagenation/pagenation.component';
+import { ItemsPerPageComponent } from './data-table/items-per-page.component';
 
 
 
 @NgModule({
   imports: [
     CommonModule,
-    MatProgressSpinnerModule,
+    AngularMaterialModule,
   ],
   declarations: [
     MyLibComponent,
@@ -23,7 +28,16 @@ import { WaitingSpinnerComponent } from './waiting-spinner.component';
     ConfirmDialogComponent,
     MessageDialogComponent,
     WaitingSpinnerComponent,
+    DataTableComponent,
+    PagenationComponent,
+    ItemsPerPageComponent,
   ],
-  exports: [MyLibComponent]
+  exports: [
+    MyLibComponent,
+    AlertDialogComponent,
+    ConfirmDialogComponent,
+    MessageDialogComponent,
+    WaitingSpinnerComponent,
+  ],
 })
 export class MyLibModule { }
