@@ -43,6 +43,8 @@ export class DataTableComponent implements OnInit, OnDestroy {
   @Output() tableFilteredChange = new EventEmitter<any[]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
+  private headerValueSource = new BehaviorSubject<Object>({});
+  headerValue$: Observable<Object>;
 
   private tableFiltered$: Observable<any[]>;
   private indiceFiltered$: Observable<number[]>;
@@ -67,12 +69,18 @@ export class DataTableComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
+    console.assert(
+      !this.headerSettings || this.headerSettings.length <= 0,
+      'ヘッダ設定が与えられていません。' );
+
     this.usePagenation = !!this.usePagenation;
     this.transform = ( this.transform || ((_, value) => value) );
     this.headerSettings = ( this.headerSettings || [] );
     this.itemsPerPageOptions = ( this.itemsPerPageOptions || [] );
     // this.columnStatesSource.next( this.columnStates );  // initialize
 
+    this.headerValue$ = this.headerValueSource.asObservable()
+                          .pipe( debounceTime(300) );
 
     // this.columnStates$
     //   = this.tableFiltered$.pipe(
