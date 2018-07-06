@@ -1,13 +1,20 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 
 import { Observable, BehaviorSubject, combineLatest, merge } from 'rxjs';
-import { map, withLatestFrom, debounceTime, takeWhile, startWith } from 'rxjs/operators';
+import { map,
+         withLatestFrom,
+         debounceTime,
+         takeWhile,
+         startWith,
+         scan } from 'rxjs/operators';
 
 import { ColumnState } from './column-state';
-import { filterFunction } from './functions/filterFunction';
-import { indexOnRawData } from './functions/indexOnRawData';
+import { filterFunction } from './functions/filter-function';
+import { indexOnRawData } from './functions/index-on-raw-data';
 import { slice } from './functions/slice';
-import { utils } from '../../../../../dist/utilities';
+import { utils } from 'dist/utilities';
+import { makeSelectOptions } from './functions/make-select-options';
+import { HeaderSetting } from './header-setting';
 
 
 @Component({
@@ -20,7 +27,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
   @Input() table$: Observable<any[]>;
   @Input() usePagenation: boolean = true;
-  @Input() columnStates: ColumnState[];  // initializer
+  @Input() headerSettings: HeaderSetting[];
   @Input() itemsPerPageOptions: number[];
   @Input() itemsPerPageInit: number;
 
@@ -29,7 +36,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
   @Output() cellClicked = new EventEmitter<{
       rowIndex: number,
-      rowIndexOnFiltered: number,
+      rowIndexOnFilter: number,
       columnName: string
     }>();
 
@@ -40,7 +47,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
   private tableFiltered$: Observable<any[]>;
   private indiceFiltered$: Observable<number[]>;
 
-  tableFilteredSize$: Observable<number>;
+  tableFilteredRowSize$: Observable<number>;
 
   private columnStatesSource = new BehaviorSubject<ColumnState[]>([]);
   columnStates$: Observable<ColumnState[]>;
@@ -60,23 +67,33 @@ export class DataTableComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
-    this.columnStatesSource.next( this.columnStates );  // initialize
+    this.usePagenation = !!this.usePagenation;
     this.transform = ( this.transform || ((_, value) => value) );
-    this.columnStates = ( this.columnStates || [] );
+    this.headerSettings = ( this.headerSettings || [] );
     this.itemsPerPageOptions = ( this.itemsPerPageOptions || [] );
+    // this.columnStatesSource.next( this.columnStates );  // initialize
 
 
-    this.columnStates$
-      = this.columnStatesSource.asObservable()
-          .pipe( debounceTime( 300 /* ms */ ) );
+    // this.columnStates$
+    //   = this.tableFiltered$.pipe(
+    //         debounceTime( 300 /* ms */ ),
+    //         withLatestFrom( this.table$ ),
+    //         scan<[any[], any[]], HeaderSetting[]>(
+    //           (acc, [tableFiltered, table]) =>
+    //               makeSelectOptions(
+    //                   acc,
+    //                   tableFiltered,
+    //                   table ),
+    //           this.headerSettings )
+    //     );
 
 
     this.indiceFiltered$
       = combineLatest(
           this.table$,
           this.columnStates$,
-          (data, columnStates) =>
-            data.map( (e, i) => ({ val: e, idx: i }) )
+          (table, columnStates) =>
+            table.map( (e, i) => ({ val: e, idx: i }) )
                 .filter( e => filterFunction( e.val, columnStates ) )
                 .map( e => e.idx ) );
 
@@ -86,13 +103,12 @@ export class DataTableComponent implements OnInit, OnDestroy {
           map( ([indice, table]) => indice.map( idx => table[idx] ) )
         );
 
-    this.tableFilteredSize$
+    this.tableFilteredRowSize$
       = this.tableFiltered$.pipe( map( e => e.length ) );
 
     this.itemsPerPage$
       = this.itemsPerPageSource.asObservable()
           .pipe( startWith( this.itemsPerPageInit || 100 ) );
-
 
     this.tableSliced$
       = combineLatest(
@@ -101,7 +117,6 @@ export class DataTableComponent implements OnInit, OnDestroy {
           this.pageNumber$,
           (tableFiltered, itemsPerPage, pageNumber) =>
             slice( tableFiltered, itemsPerPage, pageNumber ) );
-
 
     this.tableSlicedTransformed$
       = this.tableSliced$.pipe(
@@ -117,11 +132,11 @@ export class DataTableComponent implements OnInit, OnDestroy {
             return transformed;
           }) ));
 
-
     this.pageNumber$
       = merge(
           this.pageNumberSource.asObservable(),
           this.indiceFiltered$.pipe( map( _ => 1 ) ) );
+
 
     /* subscriptions */
     this.indiceFiltered$
@@ -130,47 +145,22 @@ export class DataTableComponent implements OnInit, OnDestroy {
         this.indiceFilteredChange.emit( val );
       });
 
-
     this.tableFiltered$
       .pipe( takeWhile( () => this.alive ) )
       .subscribe( val => this.tableFilteredChange.emit( val ) );
 
-
-    this.tableFiltered$
-      .pipe(
-        withLatestFrom( this.table$ ),
-        takeWhile( () => this.alive )
-      )
-      .subscribe( ([filteredData, table]) => {
-        const columnStates = this.columnStatesSource.getValue();
-        columnStates.forEach( column => {
-          const dataOfColumn         = table        .map( line => line[ column.name ] );
-          const dataOfColumnFiltered = filteredData.map( line => line[ column.name ] );
-          switch ( column.manip ) {
-            case 'select' : {
-              const options = utils.array.uniq( dataOfColumn ).sort();
-              column.selectOptions
-                = options.map( e => ({
-                      value: e,
-                      viewValue: this.transform( column.name, e )
-                          + `(${dataOfColumnFiltered.filter( cell => cell === e ).length})`,
-                    }) );
-            } break;
-            case 'multiSelect-or' :
-            case 'multiSelect-and' : {
-              const options = utils.array.uniq( [].concat( ...dataOfColumn ) ).sort();
-              column.selectOptions
-                = options.map( e => ({
-                      value: e,
-                      viewValue: this.transform( column.name, e )
-                          + `(${dataOfColumnFiltered.filter( cell => cell.includes(e) ).length})`,
-                    }) );
-            } break;
-            default: break;
-          }
-        });
-        this.columnStatesSource.next( columnStates );
-      });
+    // this.tableFiltered$
+    //   .pipe(
+    //     withLatestFrom( this.table$ ),
+    //     takeWhile( () => this.alive )
+    //   )
+    //   .subscribe( ([tableFiltered, table]) => {
+    //     this.columnStatesSource.next(
+    //             makeSelectOptions(
+    //                 this.columnStatesSource.getValue(),
+    //                 tableFiltered,
+    //                 table ) );
+    //   });
   }
 
 
@@ -188,7 +178,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
     this.pageNumberSource.next(0);
   }
 
-  selectedPageIndexOnChange( value ) {
+  pageNumberOnChange( value ) {
     this.pageNumberSource.next( value );
   }
 
@@ -198,11 +188,11 @@ export class DataTableComponent implements OnInit, OnDestroy {
     columnName: string,
     columnStates: ColumnState[]
   ) {
-    const rowIndexOnFilteredData
+    const rowIndexOnFilterData
        = this.itemsPerPageSource.value * this.pageNumberSource.value + rowIndexOnThisPage;
     this.cellClicked.emit({
-      rowIndex: indexOnRawData( rawData, rowIndexOnFilteredData, columnStates ),
-      rowIndexOnFiltered: rowIndexOnFilteredData,
+      rowIndex: indexOnRawData( rawData, rowIndexOnFilterData, columnStates ),
+      rowIndexOnFilter: rowIndexOnFilterData,
       columnName: columnName
     });
   }

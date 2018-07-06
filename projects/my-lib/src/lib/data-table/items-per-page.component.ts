@@ -5,7 +5,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
   template: `
     <mat-form-field class='items-per-page'>
       <mat-select placeholder="items per page" [value]="itemsPerPage">
-        <mat-option *ngFor="let option of itemsPerPageOptions"
+        <mat-option *ngFor="let option of options"
             [value]="option"
             (click)="setItemsPerPage( option )" >
           {{ option }}
@@ -22,8 +22,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class ItemsPerPageComponent implements OnInit {
 
-  @Input() itemsPerPageOptions: number[] = [];  // [ 25, 50, 100, 200 ];
-
+  @Input() options: number[];
   @Input()  itemsPerPage: number = 0;
   @Output() itemsPerPageChange = new EventEmitter<number>();
 
@@ -31,6 +30,7 @@ export class ItemsPerPageComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.options = ( this.options || [ 25, 50, 100, 200 ] );
   }
 
   setItemsPerPage( value: number ) {

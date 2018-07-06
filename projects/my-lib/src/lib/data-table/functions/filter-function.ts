@@ -1,4 +1,4 @@
-import { utils } from '../../../../../../dist/utilities';
+import { utils } from 'dist/utilities';
 import { ColumnState } from '../column-state';
 
 
