@@ -93,8 +93,8 @@ export const utils = {
 
   array: {
     isEmpty: ( ar: any[] ): boolean => ar.length === 0,
-    back:  <T>( ar: Array<T> ): T => ar[ ar.length - 1 ],
-    front: <T>( ar: Array<T> ): T => ar[0],
+    back:  <T>( ar: T[] ): T => ar[ ar.length - 1 ],
+    front: <T>( ar: T[] ): T => ar[0],
 
     isEqual: <T>( ar1: T[], ar2: T[] ): boolean => {
       if ( ar1.length !== ar2.length ) return false;
@@ -108,27 +108,27 @@ export const utils = {
      * @description alias of `ar.splice( index, 1 )[0]`;  Delete the element at address `index`
      * @return the deleted element
      */
-    removeAt: <T>( arr: Array<T>, index: number ): T =>
+    removeAt: <T>( arr: T[], index: number ): T =>
       ( index < 0 ? undefined : arr.splice( index, 1 )[0] ),
 
-    removeIf: <T>( arr: Array<T>, f: (T) => boolean ): T =>
+    removeIf: <T>( arr: T[], f: (T) => boolean ): T =>
       utils.array.removeAt( arr, arr.findIndex(f) ),
 
-    remove: <T>( arr: Array<T>, value: T ): T|undefined =>
+    remove: <T>( arr: T[], value: T ): T|undefined =>
       utils.array.removeIf( arr, e => e === value ),
 
-    removeValue: <T>( arr: Array<T>, value: T ): T|undefined =>
+    removeValue: <T>( arr: T[], value: T ): T|undefined =>
       utils.array.removeIf( arr, e => e === value ),
 
-    getRemovedCopy: <T>( arr: Array<T>, target: T ): Array<T> =>
+    getRemovedCopy: <T>( arr: T[], target: T ): T[] =>
       arr.filter( e => e !== target ),
 
-    filterRemove: <T>( arr: Array<T>, f: (T) => boolean ): [ Array<T>, Array<T> ] =>
+    filterRemove: <T>( arr: T[], f: (T) => boolean ): [ T[], T[] ] =>
       [ arr.filter(f), arr.filter( e => !f(e) ) ],
 
     append: ( arr1: any[], arr2: any[] ): any[] => [].concat( arr1, arr2 ),
 
-    copy: <T>( arr: Array<T> ): Array<T> => [].concat( arr ),
+    copy: <T>( arr: T[] ): T[] => [].concat( arr ),
 
     getReversed: ( arr: any[] ) => utils.array.copy( arr ).reverse(),
 
@@ -140,7 +140,7 @@ export const utils = {
      * @param arr target array
      * @param mapFunction perform identity check after mapping by the map function
      */
-    uniq: <T>( arr: Array<T>, mapFunction: (T) => any = (e => e) ) =>
+    uniq: <T>( arr: T[], mapFunction: (T) => any = (e => e) ) =>
       arr.map( (e) => [ e, mapFunction(e) ] )
          .filter( (val, index, array) => (array.map( a => a[1] ).indexOf( val[1] ) === index) )
          .map( a => a[0] ),
@@ -151,13 +151,11 @@ export const utils = {
     sum: ( arr: number[] ): number =>
       arr.reduce( (prev, curr) => prev + curr ),
 
-    average: ( array: number[] ): number =>
-      ( utils.array.isEmpty(array) ? 0 : utils.array.sum( array ) / array.length ),
+    average: ( arr: number[] ): number =>
+      ( utils.array.isEmpty(arr) ? 0 : utils.array.sum( arr ) / arr.length ),
 
     swap: ( arr: any[], index1: number, index2: number ) => {
-      const temp  = arr[index1];
-      arr[index1] = arr[index2];
-      arr[index2] = temp;
+      [arr[index1], arr[index2]] = [arr[index2], arr[index2]];
     },
 
     isSubset: <T>( arr1: T[], arr2: T[] ): boolean =>
@@ -211,8 +209,8 @@ export const utils = {
       return max;
     },
 
-    isInArrayRange: ( target: number, array: any[] ): boolean =>
-      utils.number.isInRange( target, 0, array.length ),
+    isInArrayRange: ( target: number, arr: any[] ): boolean =>
+      utils.number.isInRange( target, 0, arr.length ),
   },
 
 
@@ -254,7 +252,7 @@ export const utils = {
       genIntegerIn: ( min: number, max: number ) =>
         Math.round( Math.random() * (max - min) + min ),
 
-      getRandomElement: <T>( array: Array<T> ): T =>
+      getRandomElement: <T>( array: T[] ): T =>
         array[ this.randomNumber( 0, array.length - 1 ) ],
 
       getShuffled: ( arr: any[] ): any[] =>
