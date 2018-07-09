@@ -12,15 +12,14 @@ import { utils } from 'dist/utilities';
 })
 export class PagenationComponent implements OnInit {
 
-
-  @Input()  itemsPerPage$: Observable<number>;
   @Input()  rowSize$: Observable<number>;
+  @Input()  itemsPerPage$: Observable<number>;
+  @Input()  pageLength$: Observable<number>;
   @Input()  pageNumber$: Observable<number>;
   @Output() pageNumberChange = new EventEmitter<number>();
 
   rangeStart$: Observable<number>;
   rangeEnd$:   Observable<number>;
-  pageLength$: Observable<number>;
   pageIndice$: Observable<number[]>;
 
 
@@ -29,26 +28,21 @@ export class PagenationComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.pageLength$ = combineLatest(
-        this.itemsPerPage$,
-        this.rowSize$,
-        (itemsPerPage, rowSize) => Math.ceil( rowSize / itemsPerPage ) );
-
     this.pageIndice$
-      = this.pageLength$.pipe( map( len => utils.number.seq0( len ) ) );
+      = this.pageLength$.pipe( map( len => utils.number.numSeq( 1, len ) ) );
 
     this.rangeStart$ = combineLatest(
         this.itemsPerPage$,
         this.pageNumber$,
         (itemsPerPage, pageNumber) =>
-          itemsPerPage * pageNumber + 1 );
+          itemsPerPage * (pageNumber - 1) + 1 );
 
     this.rangeEnd$ = combineLatest(
         this.itemsPerPage$,
         this.pageNumber$,
         this.rowSize$,
         (itemsPerPage, pageNumber, rowSize) =>
-          Math.min( rowSize, (itemsPerPage * (pageNumber + 1)) ) );
+          Math.min( rowSize, (itemsPerPage * pageNumber) ) );
   }
 
   setPageNumber( pageNumber: number ) {

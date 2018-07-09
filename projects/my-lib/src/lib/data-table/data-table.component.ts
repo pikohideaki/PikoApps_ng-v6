@@ -5,16 +5,16 @@ import { map,
          withLatestFrom,
          debounceTime,
          takeWhile,
-         startWith,
-         scan } from 'rxjs/operators';
+         startWith
+        } from 'rxjs/operators';
 
-import { ColumnState } from './column-state';
+import { utils } from 'dist/utilities';
+
+import { HeaderSetting } from './header-setting';
 import { filterFunction } from './functions/filter-function';
 import { indexOnRawData } from './functions/index-on-raw-data';
 import { slice } from './functions/slice';
-import { utils } from 'dist/utilities';
 import { makeSelectOptions } from './functions/make-select-options';
-import { HeaderSetting } from './header-setting';
 
 
 @Component({
@@ -25,43 +25,43 @@ import { HeaderSetting } from './header-setting';
 export class DataTableComponent implements OnInit, OnDestroy {
   private alive: boolean = true;
 
-  @Input() table$: Observable<any[]>;
+  /**
+   * number, string, boolean or Array of those are supported for cell type
+   */
+
+  @Input() table$!: Observable<any[]>;
+  @Input() headerSettings!: HeaderSetting[];
+  @Input() itemsPerPageOptions!: number[];
+  @Input() itemsPerPageInit!: number;
   @Input() usePagenation: boolean = true;
-  @Input() headerSettings: HeaderSetting[];
-  @Input() itemsPerPageOptions: number[];
-  @Input() itemsPerPageInit: number;
+  @Input() displayNo: boolean = true;
 
   // transform cells for view
-  @Input() transform: (columnName: string, value) => string;
+  @Input() transform: (columnId: string, value) => string;
 
   @Output() cellClicked = new EventEmitter<{
       rowIndex: number,
-      rowIndexOnFilter: number,
-      columnName: string
+      rowIndexInTableFiltered: number,
+      columnId: string
     }>();
 
   @Output() tableFilteredChange = new EventEmitter<any[]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
-  private headerValueSource = new BehaviorSubject<Object>({});
-  headerValue$: Observable<Object>;
+  private headerValuesSource = new BehaviorSubject<object>({});
+  private pageNumberSource = new BehaviorSubject<number>(1);
+  private itemsPerPageSource = new BehaviorSubject<number>(100);
 
+  private headerValues$: Observable<object>;
   private tableFiltered$: Observable<any[]>;
   private indiceFiltered$: Observable<number[]>;
-
+  selectorOptions$: Observable<object>;
+    // map to { value: string, viewValue: string }
   tableFilteredRowSize$: Observable<number>;
-
-  private columnStatesSource = new BehaviorSubject<ColumnState[]>([]);
-  columnStates$: Observable<ColumnState[]>;
-
-  private itemsPerPageSource = new BehaviorSubject<number>(100);
   itemsPerPage$: Observable<number>;
-
-  private pageNumberSource = new BehaviorSubject<number>(1);
+  pageLength$: Observable<number>;
   pageNumber$: Observable<number>;
-
   private tableSliced$: Observable<any[]>;
-
   tableSlicedTransformed$: Observable<any[]>;
 
 
@@ -69,46 +69,52 @@ export class DataTableComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
+    /* Input check */
     console.assert(
       !this.headerSettings || this.headerSettings.length <= 0,
       'ヘッダ設定が与えられていません。' );
 
-    this.usePagenation = !!this.usePagenation;
+    console.assert(
+      !this.itemsPerPageOptions || this.itemsPerPageOptions.length <= 0,
+      '表示行数オプションが設定されていません。' );
+
+    console.assert(
+      !this.itemsPerPageInit,
+      '表示行数初期値が与えられていません。' );
+
     this.transform = ( this.transform || ((_, value) => value) );
-    this.headerSettings = ( this.headerSettings || [] );
-    this.itemsPerPageOptions = ( this.itemsPerPageOptions || [] );
-    // this.columnStatesSource.next( this.columnStates );  // initialize
+    this.itemsPerPageSource.next( this.itemsPerPageInit );
 
-    this.headerValue$ = this.headerValueSource.asObservable()
+    /* observables */
+    this.headerValues$ = this.headerValuesSource.asObservable()
                           .pipe( debounceTime(300) );
-
-    // this.columnStates$
-    //   = this.tableFiltered$.pipe(
-    //         debounceTime( 300 /* ms */ ),
-    //         withLatestFrom( this.table$ ),
-    //         scan<[any[], any[]], HeaderSetting[]>(
-    //           (acc, [tableFiltered, table]) =>
-    //               makeSelectOptions(
-    //                   acc,
-    //                   tableFiltered,
-    //                   table ),
-    //           this.headerSettings )
-    //     );
-
 
     this.indiceFiltered$
       = combineLatest(
           this.table$,
-          this.columnStates$,
-          (table, columnStates) =>
+          this.headerValues$,
+          (table, headerValues) =>
             table.map( (e, i) => ({ val: e, idx: i }) )
-                .filter( e => filterFunction( e.val, columnStates ) )
-                .map( e => e.idx ) );
+              .filter( e => filterFunction(
+                              e.val,
+                              this.headerSettings,
+                              headerValues ) )
+              .map( e => e.idx ) );
 
     this.tableFiltered$
       = this.indiceFiltered$.pipe(
           withLatestFrom( this.table$ ),
           map( ([indice, table]) => indice.map( idx => table[idx] ) )
+        );
+
+    this.selectorOptions$
+      = this.tableFiltered$.pipe(
+          withLatestFrom( this.table$ ),
+          map( ([tableFiltered, table]) =>
+                  makeSelectOptions(
+                    this.headerSettings,
+                    table,
+                    tableFiltered ) )
         );
 
     this.tableFilteredRowSize$
@@ -118,32 +124,41 @@ export class DataTableComponent implements OnInit, OnDestroy {
       = this.itemsPerPageSource.asObservable()
           .pipe( startWith( this.itemsPerPageInit || 100 ) );
 
+    this.pageLength$
+      = combineLatest(
+          this.tableFilteredRowSize$,
+          this.itemsPerPage$,
+          (length, itemsPerPage) =>
+            Math.ceil( length / itemsPerPage ) );
+
+    this.pageNumber$
+      = merge(
+          this.pageNumberSource.asObservable(),
+          this.pageLength$.pipe( map( _ => 1 ) ) );
+
+
     this.tableSliced$
       = combineLatest(
-          this.tableFiltered$,
           this.itemsPerPage$,
-          this.pageNumber$,
-          (tableFiltered, itemsPerPage, pageNumber) =>
-            slice( tableFiltered, itemsPerPage, pageNumber ) );
+          this.pageNumber$
+        ).pipe(
+          withLatestFrom( this.tableFiltered$ ),
+          map( ([[itemsPerPage, pageNumber], tableFiltered]) =>
+            slice( tableFiltered, itemsPerPage, pageNumber ) ),
+        );
 
     this.tableSlicedTransformed$
       = this.tableSliced$.pipe(
           map( table => table.map( line => {
             const transformed = {};
-            Object.keys( line ).forEach( key => {
-              if ( Array.isArray( line[key] ) ) {
-                transformed[key] = line[key].map( e => this.transform( key, e ) ).join(', ');
-              } else {
-                transformed[key] = this.transform( key, line[key] );
-              }
+            utils.object.forEach( line, (elm, key) => {
+              transformed[key]
+                = ( Array.isArray( elm )
+                    ? elm.map( e => this.transform( key, e ) ).join(', ')
+                    : this.transform( key, elm ) );
             });
             return transformed;
           }) ));
-
-    this.pageNumber$
-      = merge(
-          this.pageNumberSource.asObservable(),
-          this.indiceFiltered$.pipe( map( _ => 1 ) ) );
 
 
     /* subscriptions */
@@ -156,19 +171,6 @@ export class DataTableComponent implements OnInit, OnDestroy {
     this.tableFiltered$
       .pipe( takeWhile( () => this.alive ) )
       .subscribe( val => this.tableFilteredChange.emit( val ) );
-
-    // this.tableFiltered$
-    //   .pipe(
-    //     withLatestFrom( this.table$ ),
-    //     takeWhile( () => this.alive )
-    //   )
-    //   .subscribe( ([tableFiltered, table]) => {
-    //     this.columnStatesSource.next(
-    //             makeSelectOptions(
-    //                 this.columnStatesSource.getValue(),
-    //                 tableFiltered,
-    //                 table ) );
-    //   });
   }
 
 
@@ -183,7 +185,6 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
   itemsPerPageOnChange( value ) {
     this.itemsPerPageSource.next( value );
-    this.pageNumberSource.next(0);
   }
 
   pageNumberOnChange( value ) {
@@ -192,37 +193,39 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
   cellOnClick(
     rawData,
-    rowIndexOnThisPage: number,
-    columnName: string,
-    columnStates: ColumnState[]
+    rowIndexInThisPage: number,
+    columnId: string,
+    headerValues: object,
   ) {
-    const rowIndexOnFilterData
-       = this.itemsPerPageSource.value * this.pageNumberSource.value + rowIndexOnThisPage;
+    const rowIndexInTableFiltered
+       = this.itemsPerPageSource.value * this.pageNumberSource.value
+            + rowIndexInThisPage;
     this.cellClicked.emit({
-      rowIndex: indexOnRawData( rawData, rowIndexOnFilterData, columnStates ),
-      rowIndexOnFilter: rowIndexOnFilterData,
-      columnName: columnName
+      rowIndex: indexOnRawData(
+                  rawData,
+                  rowIndexInTableFiltered,
+                  this.headerSettings,
+                  headerValues ),
+      rowIndexInTableFiltered: rowIndexInTableFiltered,
+      columnId: columnId
     });
   }
 
 
-  changeColumnState( columnName: string, value ) {
-    const columnStates = this.columnStatesSource.getValue();
-    const column = columnStates.find( e => e.name === columnName );
-    if ( column === undefined ) return;
-    column.manipState = value;
-    this.columnStatesSource.next( columnStates );
+  changeHeaderValue( columnId: string, value ) {
+    const headerValues = this.headerValuesSource.getValue();
+    headerValues[columnId] = value;
+    this.headerValuesSource.next( headerValues );
   }
 
-  reset( columnName: string ) {
-    this.changeColumnState( columnName, undefined );
+  reset( columnId: string ) {
+    this.changeHeaderValue( columnId, undefined );
   }
 
   resetAll() {
-    const columnStates = this.columnStatesSource.getValue();
-    columnStates.forEach( e => e.manipState = undefined );
-    this.columnStatesSource.next( columnStates );
+    const headerValues = this.headerValuesSource.getValue();
+    utils.object.forEach( headerValues,
+        (_, key, obj) => obj[key] = undefined );
+    this.headerValuesSource.next( headerValues );
   }
-
-
 }

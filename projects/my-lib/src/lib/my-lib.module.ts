@@ -14,6 +14,7 @@ import { AngularMaterialModule } from './angular-material.module';
 import { DataTableComponent } from './data-table/data-table.component';
 import { PagenationComponent } from './data-table/pagenation/pagenation.component';
 import { ItemsPerPageComponent } from './data-table/items-per-page.component';
+import { HeaderCellComponent } from './data-table/header-cell.component';
 
 
 
@@ -31,6 +32,7 @@ import { ItemsPerPageComponent } from './data-table/items-per-page.component';
     DataTableComponent,
     PagenationComponent,
     ItemsPerPageComponent,
+    HeaderCellComponent,
   ],
   exports: [
     MyLibComponent,

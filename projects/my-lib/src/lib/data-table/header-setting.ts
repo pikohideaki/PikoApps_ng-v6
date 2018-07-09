@@ -1,5 +1,5 @@
 export interface HeaderSetting {
-  columnId: string;
+  id:       string;
   name:     string;
   align:    'l'|'c'|'r';
   isButton: boolean;

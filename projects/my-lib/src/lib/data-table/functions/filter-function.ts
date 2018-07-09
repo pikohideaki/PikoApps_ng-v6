@@ -1,25 +1,33 @@
 import { utils } from 'dist/utilities';
-import { ColumnState } from '../column-state';
+import { HeaderSetting } from '../header-setting';
 
 
-export const filterFunction = ( lineOfData: any, columnStates: ColumnState[] ): boolean => {
-  const validSettings = columnStates.filter( column => column.manipState !== undefined );
+export const filterFunction = (
+    lineOfData: any,
+    headerSettings: HeaderSetting[],
+    headerValues: object,
+): boolean => {
+  const validSettings
+    = headerSettings.filter( header =>
+          headerValues[header.id] !== undefined );
 
-  for ( const column of validSettings ) {
+  for ( const header of validSettings ) {
     /* no mismatches => return true; 1 or more mismatches => return false */
-    switch ( column.manip ) {
+    switch ( header.type ) {
       case 'input' :
-        if ( !utils.string.submatch( lineOfData[ column.name ], column.manipState, true ) ) return false;
+        if ( !utils.string.submatch(
+                lineOfData[ header.name ],
+                headerValues[ header.id ], true ) ) return false;
         break;
 
       case 'select' :
-        if ( lineOfData[ column.name ] !== column.manipState ) return false;
+        if ( lineOfData[ header.name ] !== headerValues[ header.id ] ) return false;
         break;
 
       case 'multiSelect-and' :
-        if ( !!column.manipState && column.manipState.length > 0 ) {
-          const cellValue = lineOfData[ column.name ];
-          if ( !utils.array.isSubset( column.manipState, cellValue ) ) return false;
+        if ( !!headerValues[ header.id ] && headerValues[ header.id ].length > 0 ) {
+          const cellValue = lineOfData[ header.name ];
+          if ( !utils.array.isSubset( headerValues[ header.id ], cellValue ) ) return false;
           /* for any e \in column.manipState, e \in cellValue */
         }
         break;
@@ -27,9 +35,9 @@ export const filterFunction = ( lineOfData: any, columnStates: ColumnState[] ): 
       case 'multiSelect-or' :
         /* column.manipStateの初期状態はundefinedなのでfilteringされなくなっており，
             column.manipStateの全選択初期化は不要になっている */
-        if ( !!column.manipState && column.manipState.length > 0 ) {
-          const cellValue = lineOfData[ column.name ];
-          if ( utils.array.setIntersection( column.manipState, cellValue ).length === 0 ) return false;
+        if ( !!headerValues[ header.id ] && headerValues[ header.id ].length > 0 ) {
+          const cellValue = lineOfData[ header.name ];
+          if ( utils.array.setIntersection( headerValues[ header.id ], cellValue ).length === 0 ) return false;
           /* for some e \in column.manipState, e \in cellValue */
         }
         break;

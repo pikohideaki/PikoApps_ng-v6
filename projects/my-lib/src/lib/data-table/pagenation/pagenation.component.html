@@ -12,14 +12,14 @@
 <ng-template #main>
   <div class='pagenation'>
     <button mat-raised-button class="navigationButton"
-        (click)='setPageNumber(0)'
-        [disabled]='data.pageNumber <= 0' >
+        (click)='setPageNumber(1)'
+        [disabled]='data.pageNumber <= 1' >
       <mat-icon>first_page</mat-icon>
     </button>
 
     <button mat-raised-button class="navigationButton"
         (click)='setPageNumber( data.pageNumber - 1 )'
-        [disabled]='data.pageNumber <= 0' >
+        [disabled]='data.pageNumber <= 1' >
       <mat-icon>chevron_left</mat-icon>
     </button>
 
@@ -31,7 +31,7 @@
             [class.mat-button-toggle-normal]="data.pageNumber !== pageIndex"
             [class.mat-button-toggle-selected]="data.pageNumber === pageIndex"
             (click)="setPageNumber( pageIndex )" >
-          <span>{{pageIndex + 1}}</span>
+          <span>{{pageIndex}}</span>
         </mat-button-toggle>
       </mat-button-toggle-group>
     </ng-template>
@@ -44,13 +44,13 @@
 
     <button mat-raised-button class="navigationButton"
         (click)='setPageNumber( data.pageNumber + 1 )'
-        [disabled]='data.pageNumber >= data.pageLength - 1' >
+        [disabled]='data.pageNumber >= data.pageLength' >
       <mat-icon>chevron_right</mat-icon>
     </button>
 
     <button mat-raised-button class="navigationButton"
-        (click)='setPageNumber( data.pageLength - 1 )'
-        [disabled]='data.pageNumber >= data.pageLength - 1' >
+        (click)='setPageNumber( data.pageLength )'
+        [disabled]='data.pageNumber >= data.pageLength' >
       <mat-icon>last_page</mat-icon>
     </button>
   </div>
