@@ -15,6 +15,7 @@ import { filterFunction } from './functions/filter-function';
 import { indexOnRawData } from './functions/index-on-raw-data';
 import { slice } from './functions/slice';
 import { makeSelectOptions } from './functions/make-select-options';
+import { SelectorOption } from './selector-option';
 
 
 @Component({
@@ -55,7 +56,8 @@ export class DataTableComponent implements OnInit, OnDestroy {
   private headerValues$: Observable<object>;
   private tableFiltered$: Observable<any[]>;
   private indiceFiltered$: Observable<number[]>;
-  selectorOptions$: Observable<object>;
+  // selectorOptions$: Observable<object>;
+  selectorOptions$: Observable<SelectorOption>;
     // map to { value: string, viewValue: string }
   tableFilteredRowSize$: Observable<number>;
   itemsPerPage$: Observable<number>;

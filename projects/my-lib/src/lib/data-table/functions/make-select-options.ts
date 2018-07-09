@@ -1,12 +1,13 @@
 import { utils } from 'dist/utilities';
 import { HeaderSetting } from '../header-setting';
+import { SelectorOption } from '../selector-option';
 
 
 export const makeSelectOptions = (
   headerSettings: HeaderSetting[],
   table: any[],
   tableFiltered: any[],
-): object => {
+): SelectorOption => {
   const selectorOptions = {};
 
   headerSettings.forEach( header => {
