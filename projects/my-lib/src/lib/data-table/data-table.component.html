@@ -2,7 +2,7 @@
       table:                  table$                  | async,
       tableSlicedTransformed: tableSlicedTransformed$ | async,
       itemsPerPage:           itemsPerPage$           | async,
-      selectorValuesAll:      selectorValuesAll$      | async,
+      headerValuesAll:        headerValuesAll$        | async,
       selectorOptionsAll:     selectorOptionsAll$     | async
     } as data">
   <lib-app-waiting-spinner [waiting]="!data.table"></lib-app-waiting-spinner>
@@ -36,7 +36,7 @@
               [class.data-table--cell-alignCenter]="header.align === 'c' "
               [class.data-table--cell-alignRight] ="header.align === 'r' " >
             <lib-header-cell
-              [selectorValue]="data.selectorValuesAll[idx]"
+              [selectorValue]="data.headerValuesAll[idx]"
               [selectorOptions]="data.selectorOptionsAll[idx]"
               (selectorValueChange)="selectorValueOnChange( idx, $event )"
               (reset)="reset( idx, $event )">

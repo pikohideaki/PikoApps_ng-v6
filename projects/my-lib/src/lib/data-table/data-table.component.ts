@@ -34,11 +34,6 @@ export class DataTableComponent implements OnInit, OnDestroy {
    */
 
   @Input() table$!: Observable<TableCell[][]>;
-  // @Input() headerSettings!: HeaderSetting[];
-  // @Input() itemsPerPageOptions!: number[];
-  // @Input() itemsPerPageInit!: number;
-  // @Input() usePagenation: boolean = true;
-  // @Input() displayNo: boolean = true;
   @Input() tableSettings!: TableSettings;
 
   @Output() cellClicked = new EventEmitter<CellPosition>();
@@ -46,11 +41,11 @@ export class DataTableComponent implements OnInit, OnDestroy {
   @Output() tableFilteredChange = new EventEmitter<TableCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
-  private headerValuesSource = new BehaviorSubject<TableCell[][]>([]);
+  private headerValuesSource = new BehaviorSubject<TableCell[]>([]);
   private pageNumberSource = new BehaviorSubject<number>(1);
   private itemsPerPageSource = new BehaviorSubject<number>(100);
 
-  private headerValuesAll$: Observable<TableCell[][]>;
+  private headerValuesAll$: Observable<TableCell[]>;
   selectorOptionsAll$: Observable<SelectorOption[][]>;
 
   private tableFiltered$: Observable<TableCell[][]>;
@@ -69,19 +64,10 @@ export class DataTableComponent implements OnInit, OnDestroy {
   ngOnInit() {
     /* Input check */
     console.assert(
-      !this.headerSettings || this.headerSettings.length <= 0,
-      'ヘッダ設定が与えられていません。' );
+      !this.tableSettings,
+      'テーブル設定が与えられていません。' );
 
-    console.assert(
-      !this.itemsPerPageOptions || this.itemsPerPageOptions.length <= 0,
-      '表示行数オプションが設定されていません。' );
-
-    console.assert(
-      !this.itemsPerPageInit,
-      '表示行数初期値が与えられていません。' );
-
-    this.transform = ( this.transform || ((_, value) => value.toString() ) );
-    this.itemsPerPageSource.next( this.itemsPerPageInit );
+    this.itemsPerPageSource.next( this.tableSettings.itemsPerPageInit );
 
     /* observables */
     this.headerValuesAll$
@@ -96,7 +82,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
             table.map( (e, i) => ({ val: e, idx: i }) )
               .filter( e => filterFunction(
                               e.val,
-                              this.headerSettings,
+                              this.tableSettings.headerSettings,
                               headerValues ) )
               .map( e => e.idx ) );
 
@@ -111,7 +97,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
           withLatestFrom( this.table$ ),
           map( ([tableFiltered, table]) =>
                   makeSelectOptions(
-                    this.headerSettings,
+                    this.tableSettings.headerSettings,
                     table,
                     tableFiltered ) )
         );
@@ -121,7 +107,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
     this.itemsPerPage$
       = this.itemsPerPageSource.asObservable()
-          .pipe( startWith( this.itemsPerPageInit || 100 ) );
+          .pipe( startWith( this.tableSettings.itemsPerPageInit || 100 ) );
 
     this.pageLength$
       = combineLatest(
@@ -146,22 +132,15 @@ export class DataTableComponent implements OnInit, OnDestroy {
             slice( tableFiltered, itemsPerPage, pageNumber ) ),
         );
 
-    // this.tableSlicedTransformed$
-    //   = this.tableSliced$.pipe(
-    //       map( table => table.map( line => {
-            // this.headerSettings.map( (hd, idx) => {
-            //   line[ hd.id ];
-
-            // })
-            // const transformed = {};
-            // utils.object.forEach( line, (elm, key) => {
-            //   transformed[key]
-            //     = ( Array.isArray( elm )
+    this.tableSlicedTransformed$
+      = this.tableSliced$.pipe(
+          map( table => table.map( line =>
+            line.map( (elm, idx) =>
+              this.tableSettings.headerSettings[idx].transform( elm ) ))
+          ));
+            // ( Array.isArray( elm )
             //         ? elm.map( e => this.transform( key, e ) ).join(', ')
             //         : this.transform( key, elm ) );
-            // });
-            // return transformed;
-          // }) ));
 
 
     /* subscriptions */
@@ -183,9 +162,6 @@ export class DataTableComponent implements OnInit, OnDestroy {
   }
 
 
-
-
-
   itemsPerPageOnChange( value ) {
     this.itemsPerPageSource.next( value );
   }
@@ -197,7 +173,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
   cellOnClick(
     rawData,
     rowIndexInThisPage: number,
-    columnId: string,
+    columnIndex: number,
     headerValues: object,
   ) {
     const rowIndexInTableFiltered
@@ -207,22 +183,22 @@ export class DataTableComponent implements OnInit, OnDestroy {
       rowIndex: indexOnRawData(
                   rawData,
                   rowIndexInTableFiltered,
-                  this.headerSettings,
+                  this.tableSettings.headerSettings,
                   headerValues ),
       rowIndexInTableFiltered: rowIndexInTableFiltered,
-      columnId: columnId
+      columnIndex: columnIndex
     });
   }
 
 
-  selectorValueOnChange( columnIndex: number, value: TableCell[] ) {
-    const selectorValues = this.headerValuesSource.getValue();
-    selectorValues[columnIndex] = value;
-    this.headerValuesSource.next( selectorValues );
+  headerValueOnChange( columnIndex: number, value: TableCell ) {
+    const headerValues = this.headerValuesSource.getValue();
+    headerValues[columnIndex] = value;
+    this.headerValuesSource.next( headerValues );
   }
 
   reset( columnIndex: number ) {
-    this.selectorValueOnChange( columnIndex, undefined );
+    this.headerValueOnChange( columnIndex, undefined );
   }
 
   resetAll() {

@@ -11,25 +11,25 @@ export const makeSelectOptions = (
   const selectorOptions: SelectorOptionMap = {};
 
   headerSettings.forEach( header => {
-    const col         = table        .map( line => line[ header.id ] );
-    const colFiltered = tableFiltered.map( line => line[ header.id ] );
+    const col         = table        .map( line => line[ header.memberName ] );
+    const colFiltered = tableFiltered.map( line => line[ header.memberName ] );
     switch ( header.type ) {
       case 'select' : {
         const options = utils.array.uniq( col ).sort();
-        selectorOptions[ header.id ]
+        selectorOptions[ header.memberName ]
           = options.map( e => ({
                 value: e,
-                viewValue: this.transform( header.name, e )
+                viewValue: this.transform( header.displayName, e )
                     + `(${colFiltered.filter( cell => cell === e ).length})`,
               }) );
       } break;
       case 'multiSelect-or' :
       case 'multiSelect-and' : {
         const options = utils.array.uniq( [].concat( ...col ) ).sort();
-        selectorOptions[ header.id ]
+        selectorOptions[ header.memberName ]
           = options.map( e => ({
                 value: e,
-                viewValue: this.transform( header.name, e )
+                viewValue: this.transform( header.displayName, e )
                     + `(${colFiltered.filter( cell => cell.includes(e) ).length})`,
               }) );
       } break;
