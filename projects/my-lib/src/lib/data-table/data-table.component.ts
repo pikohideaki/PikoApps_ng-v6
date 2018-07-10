@@ -10,12 +10,15 @@ import { map,
 
 import { utils } from 'dist/utilities';
 
-import { HeaderSetting } from './header-setting';
+import { HeaderSetting } from './types/header-setting';
 import { filterFunction } from './functions/filter-function';
 import { indexOnRawData } from './functions/index-on-raw-data';
 import { slice } from './functions/slice';
 import { makeSelectOptions } from './functions/make-select-options';
-import { SelectorOption } from './selector-option';
+import { SelectorOption } from './types/selector-option';
+import { TableCell } from './types/table-cell';
+import { CellPosition } from './types/cell-position';
+import { TableSettings } from './types/table-settings';
 
 
 @Component({
@@ -30,41 +33,34 @@ export class DataTableComponent implements OnInit, OnDestroy {
    * number, string, boolean or Array of those are supported for cell type
    */
 
-  @Input() table$!: Observable<any[]>;
-  @Input() headerSettings!: HeaderSetting[];
-  @Input() itemsPerPageOptions!: number[];
-  @Input() itemsPerPageInit!: number;
-  @Input() usePagenation: boolean = true;
-  @Input() displayNo: boolean = true;
+  @Input() table$!: Observable<TableCell[][]>;
+  // @Input() headerSettings!: HeaderSetting[];
+  // @Input() itemsPerPageOptions!: number[];
+  // @Input() itemsPerPageInit!: number;
+  // @Input() usePagenation: boolean = true;
+  // @Input() displayNo: boolean = true;
+  @Input() tableSettings!: TableSettings;
 
-  // transform cells for view
-  @Input() transform: (columnId: string, value) => string;
+  @Output() cellClicked = new EventEmitter<CellPosition>();
 
-  @Output() cellClicked = new EventEmitter<{
-      rowIndex: number,
-      rowIndexInTableFiltered: number,
-      columnId: string
-    }>();
-
-  @Output() tableFilteredChange = new EventEmitter<any[]>();
+  @Output() tableFilteredChange = new EventEmitter<TableCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
-  private headerValuesSource = new BehaviorSubject<object>({});
+  private headerValuesSource = new BehaviorSubject<TableCell[][]>([]);
   private pageNumberSource = new BehaviorSubject<number>(1);
   private itemsPerPageSource = new BehaviorSubject<number>(100);
 
-  private headerValues$: Observable<object>;
-  private tableFiltered$: Observable<any[]>;
+  private headerValuesAll$: Observable<TableCell[][]>;
+  selectorOptionsAll$: Observable<SelectorOption[][]>;
+
+  private tableFiltered$: Observable<TableCell[][]>;
   private indiceFiltered$: Observable<number[]>;
-  // selectorOptions$: Observable<object>;
-  selectorOptions$: Observable<SelectorOption>;
-    // map to { value: string, viewValue: string }
   tableFilteredRowSize$: Observable<number>;
   itemsPerPage$: Observable<number>;
   pageLength$: Observable<number>;
   pageNumber$: Observable<number>;
-  private tableSliced$: Observable<any[]>;
-  tableSlicedTransformed$: Observable<any[]>;
+  private tableSliced$: Observable<TableCell[][]>;
+  tableSlicedTransformed$: Observable<string[][]>;
 
 
 
@@ -84,17 +80,18 @@ export class DataTableComponent implements OnInit, OnDestroy {
       !this.itemsPerPageInit,
       '表示行数初期値が与えられていません。' );
 
-    this.transform = ( this.transform || ((_, value) => value) );
+    this.transform = ( this.transform || ((_, value) => value.toString() ) );
     this.itemsPerPageSource.next( this.itemsPerPageInit );
 
     /* observables */
-    this.headerValues$ = this.headerValuesSource.asObservable()
-                          .pipe( debounceTime(300) );
+    this.headerValuesAll$
+      = this.headerValuesSource.asObservable()
+              .pipe( debounceTime(300) );
 
     this.indiceFiltered$
       = combineLatest(
           this.table$,
-          this.headerValues$,
+          this.headerValuesAll$,
           (table, headerValues) =>
             table.map( (e, i) => ({ val: e, idx: i }) )
               .filter( e => filterFunction(
@@ -109,7 +106,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
           map( ([indice, table]) => indice.map( idx => table[idx] ) )
         );
 
-    this.selectorOptions$
+    this.selectorOptionsAll$
       = this.tableFiltered$.pipe(
           withLatestFrom( this.table$ ),
           map( ([tableFiltered, table]) =>
@@ -149,18 +146,22 @@ export class DataTableComponent implements OnInit, OnDestroy {
             slice( tableFiltered, itemsPerPage, pageNumber ) ),
         );
 
-    this.tableSlicedTransformed$
-      = this.tableSliced$.pipe(
-          map( table => table.map( line => {
-            const transformed = {};
-            utils.object.forEach( line, (elm, key) => {
-              transformed[key]
-                = ( Array.isArray( elm )
-                    ? elm.map( e => this.transform( key, e ) ).join(', ')
-                    : this.transform( key, elm ) );
-            });
-            return transformed;
-          }) ));
+    // this.tableSlicedTransformed$
+    //   = this.tableSliced$.pipe(
+    //       map( table => table.map( line => {
+            // this.headerSettings.map( (hd, idx) => {
+            //   line[ hd.id ];
+
+            // })
+            // const transformed = {};
+            // utils.object.forEach( line, (elm, key) => {
+            //   transformed[key]
+            //     = ( Array.isArray( elm )
+            //         ? elm.map( e => this.transform( key, e ) ).join(', ')
+            //         : this.transform( key, elm ) );
+            // });
+            // return transformed;
+          // }) ));
 
 
     /* subscriptions */
@@ -214,14 +215,14 @@ export class DataTableComponent implements OnInit, OnDestroy {
   }
 
 
-  changeHeaderValue( columnId: string, value ) {
-    const headerValues = this.headerValuesSource.getValue();
-    headerValues[columnId] = value;
-    this.headerValuesSource.next( headerValues );
+  selectorValueOnChange( columnIndex: number, value: TableCell[] ) {
+    const selectorValues = this.headerValuesSource.getValue();
+    selectorValues[columnIndex] = value;
+    this.headerValuesSource.next( selectorValues );
   }
 
-  reset( columnId: string ) {
-    this.changeHeaderValue( columnId, undefined );
+  reset( columnIndex: number ) {
+    this.selectorValueOnChange( columnIndex, undefined );
   }
 
   resetAll() {

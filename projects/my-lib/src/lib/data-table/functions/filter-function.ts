@@ -1,5 +1,5 @@
 import { utils } from 'dist/utilities';
-import { HeaderSetting } from '../header-setting';
+import { HeaderSetting } from '../types/header-setting';
 
 
 export const filterFunction = (

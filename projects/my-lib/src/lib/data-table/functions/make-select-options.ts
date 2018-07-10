@@ -1,14 +1,14 @@
 import { utils } from 'dist/utilities';
-import { HeaderSetting } from '../header-setting';
-import { SelectorOption } from '../selector-option';
+import { HeaderSetting } from '../types/header-setting';
+import { SelectorOption, SelectorOptionMap } from '../types/selector-option';
 
 
 export const makeSelectOptions = (
   headerSettings: HeaderSetting[],
   table: any[],
   tableFiltered: any[],
-): SelectorOption => {
-  const selectorOptions = {};
+): SelectorOptionMap => {
+  const selectorOptions: SelectorOptionMap = {};
 
   headerSettings.forEach( header => {
     const col         = table        .map( line => line[ header.id ] );

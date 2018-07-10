@@ -1,10 +1,9 @@
 <ng-container *ngIf="{
+      table:                  table$                  | async,
       tableSlicedTransformed: tableSlicedTransformed$ | async,
       itemsPerPage:           itemsPerPage$           | async,
-      columnStates:           columnStates$           | async,
-      headerValues:           headerValues$           | async,
-      selectorOptions:        selectorOptions$        | async,
-      table:                  table$                  | async
+      selectorValuesAll:      selectorValuesAll$      | async,
+      selectorOptionsAll:     selectorOptionsAll$     | async
     } as data">
   <lib-app-waiting-spinner [waiting]="!data.table"></lib-app-waiting-spinner>
 
@@ -32,16 +31,15 @@
     <table class='data-table data-table--shadow3px data-table--vertical-line'>
       <thead>
         <tr>
-          <th *ngFor='let header of headerSettings'
+          <th *ngFor='let header of headerSettings; let idx = index'
               [class.data-table--cell-alignLeft]  ="header.align === 'l' "
               [class.data-table--cell-alignCenter]="header.align === 'c' "
               [class.data-table--cell-alignRight] ="header.align === 'r' " >
             <lib-header-cell
-              [headerSetting]="header"
-              [headerValue]="data.headerValues[ header.id ]"
-              [selectorOption]="data.selectorOptions[ header.id ]"
-              (headerValueChange)="changeHeaderValue( $event )"
-              (reset)="reset( $event )">
+              [selectorValue]="data.selectorValuesAll[idx]"
+              [selectorOptions]="data.selectorOptionsAll[idx]"
+              (selectorValueChange)="selectorValueOnChange( idx, $event )"
+              (reset)="reset( idx, $event )">
             </lib-header-cell>
           </th>
         </tr>
