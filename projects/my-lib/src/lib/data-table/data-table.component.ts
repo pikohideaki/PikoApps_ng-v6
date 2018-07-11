@@ -80,12 +80,12 @@ export class DataTableComponent implements OnInit, OnDestroy {
       = combineLatest(
           this.table$,
           this.headerValuesAll$,
-          (table, headerValues) =>
+          (table, headerValuesAll) =>
             table.map( (e, i) => ({ val: e, idx: i }) )
               .filter( e => filterFunction(
                               e.val,
                               this.settings.headerSettings,
-                              headerValues ) )
+                              headerValuesAll ) )
               .map( e => e.idx ) );
 
     this.tableFiltered$
@@ -99,9 +99,9 @@ export class DataTableComponent implements OnInit, OnDestroy {
           withLatestFrom( this.table$ ),
           map( ([tableFiltered, table]) =>
                   makeSelectOptions(
-                    this.settings.headerSettings,
                     table,
-                    tableFiltered ) )
+                    tableFiltered
+                    this.settings.headerSettings, ) )
         );
 
     this.tableFilteredRowSize$

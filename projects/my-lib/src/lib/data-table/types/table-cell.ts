@@ -1,7 +1,6 @@
-export type TCell = undefined
-                         | boolean
-                         | number
-                         | string
-                         | boolean[]
-                         | number[]
-                         | string[];
+export type TCellPrimitive = undefined
+                              | boolean
+                              | number
+                              | string;
+
+export type TCell = TCellPrimitive | TCellPrimitive[];

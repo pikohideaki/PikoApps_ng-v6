@@ -12,14 +12,25 @@
   列をメンバ名で指定するためにヘッダ設定に`memberName`を追加して拡張した
   `HeaderSettingForObject`型の配列をヘッダ設定とした
   `TableSettingForObject`型オブジェクトとする．
-* `TCell`はテーブルの各セルの型の定義である．`TCell`は以下のunion型とする
+* `TCell`はテーブルの各セルの型の定義である．`TCell`は`TCellPrimitive` と `TCellPrimitive[]` のunion型とする．
+* `TCellPrimitive`は以下のUnion型とする．
   * `undefined`
   * `boolean`
   * `number`
   * `string`
-  * `boolean[]`
-  * `number[]`
-  * `string[]`
 * セルのデータが配列の場合は表示では`join(，)`などで文字列化することを想定している
 * 各列のデータ
+
+
+* `filterType`ごとに対応しているセル型は以下の通り．
+
+| filter type      | cell type        |
+| ---------------- | ---------------- |
+| input            | string           |
+| autoComplete     | string           |
+| input            |                  |
+| select           | TCellPrimitive   |
+| multi-select-or  | TCell            |
+| multi-select-and | TCellPrimitive[] |
+
 

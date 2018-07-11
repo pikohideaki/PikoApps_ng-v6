@@ -1,33 +1,52 @@
 import { utils } from 'dist/utilities';
 import { HeaderSetting } from '../types/header-setting';
+import { TCell } from '../types/table-cell';
 
 
 export const filterFunction = (
-    lineOfData: any,
-    headerSettings: HeaderSetting[],
-    headerValues: object,
+  tableLine: TCell[],
+  headerSettings: HeaderSetting[],
+  headerValuesAll: TCell[],
 ): boolean => {
-  const validSettings
-    = headerSettings.filter( header =>
-          headerValues[header.memberName] !== undefined );
+
+  for ( let colIndex = 0; colIndex < headerSettings.length; ++colIndex ) {
+    const headerValue = headerValuesAll[ colIndex ];
+    if ( headerValue === undefined ) continue;
+
+    const header = headerSettings[ colIndex ];
+    const cell = tableLine[ colIndex ];
+
+    if ( !Array.isArray( cell ) ) {
+      switch ( header.filterType ) {
+        case 'input' :
+          if ( !utils.string.submatch(
+                  cell,
+                  headerValue, true ) ) return false;
+          break;
+
+      }
+    } else {
+
+    }
+  }
 
   for ( const header of validSettings ) {
     /* no mismatches => return true; 1 or more mismatches => return false */
-    switch ( header.type ) {
+    switch ( header.filterType ) {
       case 'input' :
         if ( !utils.string.submatch(
-                lineOfData[ header.displayName ],
-                headerValues[ header.memberName ], true ) ) return false;
+                tableLine[ header.displayName ],
+                headerValuesAll[ header.memberName ], true ) ) return false;
         break;
 
       case 'select' :
-        if ( lineOfData[ header.displayName ] !== headerValues[ header.memberName ] ) return false;
+        if ( tableLine[ header.displayName ] !== headerValuesAll[ header.memberName ] ) return false;
         break;
 
       case 'multiSelect-and' :
-        if ( !!headerValues[ header.memberName ] && headerValues[ header.memberName ].length > 0 ) {
-          const cellValue = lineOfData[ header.displayName ];
-          if ( !utils.array.isSubset( headerValues[ header.memberName ], cellValue ) ) return false;
+        if ( !!headerValuesAll[ header.memberName ] && headerValuesAll[ header.memberName ].length > 0 ) {
+          const cellValue = tableLine[ header.displayName ];
+          if ( !utils.array.isSubset( headerValuesAll[ header.memberName ], cellValue ) ) return false;
           /* for any e \in column.manipState, e \in cellValue */
         }
         break;
@@ -35,9 +54,9 @@ export const filterFunction = (
       case 'multiSelect-or' :
         /* column.manipStateの初期状態はundefinedなのでfilteringされなくなっており，
             column.manipStateの全選択初期化は不要になっている */
-        if ( !!headerValues[ header.memberName ] && headerValues[ header.memberName ].length > 0 ) {
-          const cellValue = lineOfData[ header.displayName ];
-          if ( utils.array.setIntersection( headerValues[ header.memberName ], cellValue ).length === 0 ) return false;
+        if ( !!headerValuesAll[ header.memberName ] && headerValuesAll[ header.memberName ].length > 0 ) {
+          const cellValue = tableLine[ header.displayName ];
+          if ( utils.array.setIntersection( headerValuesAll[ header.memberName ], cellValue ).length === 0 ) return false;
           /* for some e \in column.manipState, e \in cellValue */
         }
         break;
