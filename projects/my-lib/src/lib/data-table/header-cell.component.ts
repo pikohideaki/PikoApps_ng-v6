@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { TableCell } from './types/table-cell';
+import { TCell } from './types/table-cell';
 import { SelectorOption } from './types/selector-option';
 
 @Component({
@@ -76,11 +76,11 @@ import { SelectorOption } from './types/selector-option';
 })
 export class HeaderCellComponent implements OnInit {
 
-  @Input() selectorValue: TableCell[];
+  @Input() selectorValue: TCell[];
   @Input() selectorOptions: SelectorOption[];
 
   @Output() selectorValueChange
-    = new EventEmitter<{ columnIndex: number, value: TableCell[] }>();
+    = new EventEmitter<{ columnIndex: number, value: TCell[] }>();
 
 
   constructor() { }
@@ -88,7 +88,7 @@ export class HeaderCellComponent implements OnInit {
   ngOnInit() {
   }
 
-  changeHeaderValue( columnIndex: number, value: TableCell[] ) {
+  changeHeaderValue( columnIndex: number, value: TCell[] ) {
     this.selectorValueChange.emit({ columnIndex: columnIndex, value: value });
   }
 

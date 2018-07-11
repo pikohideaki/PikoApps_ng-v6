@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angu
 
 import { Observable, BehaviorSubject } from 'rxjs';
 
-import { Cell } from './types/table-cell';
+import { TCell } from './types/table-cell';
 import { TableSettings } from './types/table-settings';
 import { CellPosition } from './types/cell-position';
 
@@ -19,12 +19,12 @@ import { CellPosition } from './types/cell-position';
 })
 export class ObjectDataTableComponent implements OnInit {
 
-  @Input() table$!: Observable<Cell[][]>;
+  @Input() table$!: Observable<TCell[][]>;
   @Input() tableSettings!: TableSettings;
 
   @Output() cellClicked = new EventEmitter<CellPosition>();
 
-  @Output() tableFilteredChange = new EventEmitter<Cell[][]>();
+  @Output() tableFilteredChange = new EventEmitter<TCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
   // private headerValuesSource = new BehaviorSubject<TableCell[]>([]);

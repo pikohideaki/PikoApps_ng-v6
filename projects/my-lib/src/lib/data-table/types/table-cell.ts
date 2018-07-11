@@ -1,4 +1,4 @@
-export type TableCell = undefined
+export type TCell = undefined
                          | boolean
                          | number
                          | string

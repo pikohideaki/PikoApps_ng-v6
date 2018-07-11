@@ -1,6 +1,6 @@
-import { TableCell } from './table-cell';
+import { TCell } from './table-cell';
 
 export interface SelectorOption {
-  value: TableCell;
+  value: TCell;
   viewValue: string;
 }
