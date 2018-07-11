@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+
 import { TCell } from './types/table-cell';
 import { SelectorOption } from './types/selector-option';
 import { HeaderSetting } from './types/header-setting';
@@ -6,7 +7,7 @@ import { HeaderSetting } from './types/header-setting';
 @Component({
   selector: 'lib-header-cell',
   template: `
-    <ng-container [ngSwitch]="headerSetting.type">
+    <ng-container [ngSwitch]="headerSetting.filterType">
       <ng-container *ngSwitchCase="'input'">
         <mat-form-field>
           <input matInput

@@ -2,15 +2,15 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { utils } from 'dist/utilities';
+import { utils } from '../../../utilities';
 
 
 @Component({
-  selector: 'lib-pagenation',
-  templateUrl: './pagenation.component.html',
-  styleUrls: ['./pagenation.component.css']
+  selector: 'lib-pagination',
+  templateUrl: './pagination.component.html',
+  styleUrls: ['./pagination.component.css']
 })
-export class PagenationComponent implements OnInit {
+export class PaginationComponent implements OnInit {
 
   @Input()  rowSize$: Observable<number>;
   @Input()  itemsPerPage$: Observable<number>;

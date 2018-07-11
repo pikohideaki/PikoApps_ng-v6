@@ -9,8 +9,6 @@ import { map,
          skip
         } from 'rxjs/operators';
 
-import { utils } from 'dist/utilities';
-
 import { filterFunction } from './functions/filter-function';
 import { indexOnRawData } from './functions/index-on-raw-data';
 import { slice } from './functions/slice';
@@ -45,7 +43,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
   private pageNumberSource = new BehaviorSubject<number>(1);
   private itemsPerPageSource = new BehaviorSubject<number>(100);
 
-  private headerValuesAll$: Observable<TCell[]>;
+  headerValuesAll$: Observable<TCell[]>;
   selectorOptionsAll$: Observable<SelectorOption[][]>;
 
   private tableFiltered$: Observable<TCell[][]>;
@@ -63,10 +61,10 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     /* Input check */
-    console.assert( !this.table$,
+    console.assert( !!this.table$,
       'テーブルデータが与えられていません。' );
 
-    console.assert( !this.settings,
+    console.assert( !!this.settings,
       '設定が与えられていません。' );
 
     this.itemsPerPageSource.next( this.settings.itemsPerPageInit );
@@ -100,7 +98,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
           map( ([tableFiltered, table]) =>
                   makeSelectOptions(
                     table,
-                    tableFiltered
+                    tableFiltered,
                     this.settings.headerSettings, ) )
         );
 
@@ -155,6 +153,10 @@ export class DataTableComponent implements OnInit, OnDestroy {
     this.tableFiltered$
       .pipe( takeWhile( () => this.alive ) )
       .subscribe( val => this.tableFilteredChange.emit( val ) );
+
+    this.tableSlicedTransformed$
+      .pipe( takeWhile( () => this.alive ) )
+      .subscribe( val => console.log( 'tst', val ) );
   }
 
 
@@ -189,10 +191,10 @@ export class DataTableComponent implements OnInit, OnDestroy {
   }
 
   cellOnClick(
-    rawData,
+    rawData: TCell[][],
     rowIndexInThisPage: number,
     columnIndex: number,
-    headerValues: object,
+    headerValuesAll: TCell[],
   ) {
     const rowIndexInTableFiltered
        = this.itemsPerPageSource.value * this.pageNumberSource.value
@@ -202,7 +204,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
                   rawData,
                   rowIndexInTableFiltered,
                   this.settings.headerSettings,
-                  headerValues ),
+                  headerValuesAll ),
       rowIndexInTableFiltered: rowIndexInTableFiltered,
       columnIndex: columnIndex
     });

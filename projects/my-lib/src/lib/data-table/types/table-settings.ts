@@ -5,7 +5,7 @@ export class TableSettings {
   itemsPerPageOptions: number[]        = [];
   itemsPerPageInit:    number          = 50;
   displayNo?:          boolean         = false;
-  usePagenation?:      boolean         = true;
+  usepagination?:      boolean         = true;
 
   constructor() {}
 }

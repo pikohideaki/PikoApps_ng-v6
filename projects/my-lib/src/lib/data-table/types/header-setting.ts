@@ -1,19 +1,35 @@
 import { TCell } from './table-cell';
 import { CellPosition } from './cell-position';
 
+export type FilterType = ''|'input'
+                          //  |'autoComplete'
+                          //  |'numberRange'
+                          //  |'dateRange'
+                           |'select'
+                           |'multiSelect-and'
+                           |'multiSelect-or';
+
 export class HeaderSetting {
-  displayName: string = '';
-  filterType:  ''|'input'|'select'|'multiSelect-and'|'multiSelect-or' = '';
-  align:       'l'|'c'|'r' = 'l';  // left, center, right
-  isButton:    boolean = false;
-  isLink:      boolean = false;
-  enableSort:  boolean = true;
+  displayName: string;
+  filterType?:  FilterType = '';
+  align?:       'l'|'c'|'r' = 'l';  // left, center, right
+  isButton?:    boolean = false;
+  isLink?:      boolean = false;
+  enableSort?:  boolean = false;
 
-  sortBy: (value: TCell, pos?: CellPosition) => number
-    = ((_, value) => Number(value));
+  /**
+   * function to be used in Array.sort()
+   * default is `(x, y) => Number(x) - Number(y)`
+   */
+  compareFn?: (x: TCell, y: TCell) => number
+    = ((x, y) => Number(x) - Number(y) );
 
-  transform: (value: TCell, pos?: CellPosition) => string
-    = ((_, value) => value.toString());
+  /**
+   * function to be used just before displaying data
+   * default is `(value, _) => value.toString()`
+   */
+  transform?: (value: TCell, pos?: CellPosition) => string
+    = ((value, _) => value.toString());
 
   constructor() {}
 }

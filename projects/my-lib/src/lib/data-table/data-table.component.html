@@ -10,19 +10,19 @@
   <ng-container *ngIf="!!data.table">
 
     <div>
-      <div *ngIf="settings.usePagenation" class="pager-wrapper">
+      <div *ngIf="settings.usepagination" class="pager-wrapper">
         <lib-items-per-page
-            [options]='itemsPerPageOptions'
+            [options]='settings.itemsPerPageOptions'
             [itemsPerPage]='data.itemsPerPage'
             (itemsPerPageChange)="itemsPerPageOnChange( $event )">
         </lib-items-per-page>
-        <lib-pagenation
+        <lib-pagination
             [itemsPerPage$]='itemsPerPage$'
             [pageLength$]='pageLength$'
             [pageNumber$]='pageNumber$'
             [rowSize$]='tableFilteredRowSize$'
             (pageNumberChange)="pageNumberOnChange( $event )">
-        </lib-pagenation>
+        </lib-pagination>
       </div>
       <button class='reset-button' mat-raised-button (click)="resetAll()">
         Reset All
@@ -38,10 +38,10 @@
               [class.cell-align-center]="header.align === 'c' "
               [class.cell-align-right] ="header.align === 'r' " >
             <lib-header-cell
-              [selectorValue]="data.headerValuesAll[idx]"
+              [headerValue]="data.headerValuesAll[idx]"
               [selectorOptions]="data.selectorOptionsAll[idx]"
-              (selectorValueChange)="headerValueOnChange( idx, $event )"
-              (reset)="reset( idx, $event )">
+              (headerValueChange)="headerValueOnChange( idx, $event )"
+              (reset)="reset( idx )">
             </lib-header-cell>
           </th>
         </tr>
@@ -60,7 +60,7 @@
                         data.table,
                         rowIndex,
                         colIndex,
-                        data.headerValues )">
+                        data.headerValuesAll )">
                 {{ line[colIndex] }}
               </button>
             </ng-template>
@@ -73,19 +73,19 @@
     </table>
 
     <div>
-      <div *ngIf="settings.usePagenation" class="pager-wrapper">
+      <div *ngIf="settings.usepagination" class="pager-wrapper">
         <lib-items-per-page
-            [options]='itemsPerPageOptions'
+            [options]='settings.itemsPerPageOptions'
             [itemsPerPage]='data.itemsPerPage'
             (itemsPerPageChange)="itemsPerPageOnChange( $event )">
         </lib-items-per-page>
-        <lib-pagenation
+        <lib-pagination
             [itemsPerPage$]='itemsPerPage$'
             [pageLength$]='pageLength$'
             [pageNumber$]='pageNumber$'
             [rowSize$]='tableFilteredRowSize$'
             (pageNumberChange)="pageNumberOnChange( $event )">
-        </lib-pagenation>
+        </lib-pagination>
       </div>
       <div>{{data.tableSlicedTransformed.length}} items</div>
     </div>
