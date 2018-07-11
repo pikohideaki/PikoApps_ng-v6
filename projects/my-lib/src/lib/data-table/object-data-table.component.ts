@@ -3,9 +3,8 @@ import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angu
 import { Observable, BehaviorSubject } from 'rxjs';
 
 import { TCell } from './types/table-cell';
-import { TableSettings } from './types/table-settings';
 import { CellPosition } from './types/cell-position';
-
+import { ObjectTableSettings } from './types/object-table-settings';
 
 @Component({
   selector: 'lib-object-data-table',
@@ -20,7 +19,7 @@ import { CellPosition } from './types/cell-position';
 export class ObjectDataTableComponent implements OnInit {
 
   @Input() table$!: Observable<TCell[][]>;
-  @Input() tableSettings!: TableSettings;
+  @Input() settings!: ObjectTableSettings;
 
   @Output() cellClicked = new EventEmitter<CellPosition>();
 

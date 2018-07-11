@@ -1,22 +1,23 @@
 import { utils } from 'dist/utilities';
 import { HeaderSetting } from '../types/header-setting';
-import { SelectorOption, SelectorOptionMap } from '../types/selector-option';
+import { SelectorOption } from '../types/selector-option';
+import { TCell } from '../types/table-cell';
 
 
 export const makeSelectOptions = (
   headerSettings: HeaderSetting[],
-  table: any[],
-  tableFiltered: any[],
-): SelectorOptionMap => {
-  const selectorOptions: SelectorOptionMap = {};
+  table: TCell[][],
+  tableFiltered: TCell[][],
+): SelectorOption[][] => {
+  const selectorOptions: SelectorOption[][] = [];
 
-  headerSettings.forEach( header => {
-    const col         = table        .map( line => line[ header.memberName ] );
-    const colFiltered = tableFiltered.map( line => line[ header.memberName ] );
+  headerSettings.forEach( (header, colIndex) => {
+    const col         = table        .map( line => line[ colIndex ] );
+    const colFiltered = tableFiltered.map( line => line[ colIndex ] );
     switch ( header.type ) {
       case 'select' : {
         const options = utils.array.uniq( col ).sort();
-        selectorOptions[ header.memberName ]
+        selectorOptions[ colIndex ]
           = options.map( e => ({
                 value: e,
                 viewValue: this.transform( header.displayName, e )
@@ -26,11 +27,11 @@ export const makeSelectOptions = (
       case 'multiSelect-or' :
       case 'multiSelect-and' : {
         const options = utils.array.uniq( [].concat( ...col ) ).sort();
-        selectorOptions[ header.memberName ]
+        selectorOptions[ colIndex ]
           = options.map( e => ({
                 value: e,
                 viewValue: this.transform( header.displayName, e )
-                    + `(${colFiltered.filter( cell => cell.includes(e) ).length})`,
+                    + `(${colFirltered.filter( cell => cell.includes(e) ).length})`,
               }) );
       } break;
       default: break;

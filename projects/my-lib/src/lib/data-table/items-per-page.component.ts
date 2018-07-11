@@ -22,14 +22,15 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class ItemsPerPageComponent implements OnInit {
 
-  @Input() options: number[];
-  @Input()  itemsPerPage: number = 0;
+  @Input() options!: number[];
+  @Input()  itemsPerPage!: number;
   @Output() itemsPerPageChange = new EventEmitter<number>();
 
   constructor() {
   }
 
   ngOnInit() {
+    this.itemsPerPage = ( this.itemsPerPage || 50 );
     this.options = ( this.options || [ 25, 50, 100, 200 ] );
   }
 
