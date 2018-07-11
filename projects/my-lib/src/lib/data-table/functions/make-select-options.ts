@@ -31,7 +31,7 @@ export const makeSelectOptions = (
           = options.map( e => ({
                 value: e,
                 viewValue: this.transform( header.displayName, e )
-                    + `(${colFirltered.filter( cell => cell.includes(e) ).length})`,
+                    + `(${colFiltered.filter( cell => cell.includes(e) ).length})`,
               }) );
       } break;
       default: break;
