@@ -16,27 +16,13 @@ export const filterFunction = (
     const header = headerSettings[ colIndex ];
     const cell = tableLine[ colIndex ];
 
-    if ( !Array.isArray( cell ) ) {
-      switch ( header.filterType ) {
-        case 'input' :
-          if ( !utils.string.submatch(
-                  cell,
-                  headerValue, true ) ) return false;
-          break;
-
-      }
-    } else {
-
-    }
-  }
-
-  for ( const header of validSettings ) {
     /* no mismatches => return true; 1 or more mismatches => return false */
     switch ( header.filterType ) {
       case 'input' :
+        if ( typeof cell !== 'string' ) return false;
+        if ( typeof headerValue !== 'string' ) return false;
         if ( !utils.string.submatch(
-                tableLine[ header.displayName ],
-                headerValuesAll[ header.memberName ], true ) ) return false;
+                cell, headerValue, true ) ) return false;
         break;
 
       case 'select' :
@@ -64,7 +50,9 @@ export const filterFunction = (
       default :
         break;
     }
+
   }
+
   return true;
 };
 
