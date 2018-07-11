@@ -5,18 +5,18 @@ import { map,
          withLatestFrom,
          debounceTime,
          takeWhile,
-         startWith
+         startWith,
+         skip
         } from 'rxjs/operators';
 
 import { utils } from 'dist/utilities';
 
-import { HeaderSetting } from './types/header-setting';
 import { filterFunction } from './functions/filter-function';
 import { indexOnRawData } from './functions/index-on-raw-data';
 import { slice } from './functions/slice';
 import { makeSelectOptions } from './functions/make-select-options';
 import { SelectorOption } from './types/selector-option';
-import { TableCell } from './types/table-cell';
+import { TCell } from './types/table-cell';
 import { CellPosition } from './types/cell-position';
 import { TableSettings } from './types/table-settings';
 
@@ -33,28 +33,28 @@ export class DataTableComponent implements OnInit, OnDestroy {
    * number, string, boolean or Array of those are supported for cell type
    */
 
-  @Input() table$!: Observable<TableCell[][]>;
-  @Input() tableSettings!: TableSettings;
+  @Input() table$!: Observable<TCell[][]>;
+  @Input() settings!: TableSettings;
 
   @Output() cellClicked = new EventEmitter<CellPosition>();
 
-  @Output() tableFilteredChange = new EventEmitter<TableCell[][]>();
+  @Output() tableFilteredChange = new EventEmitter<TCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
-  private headerValuesSource = new BehaviorSubject<TableCell[]>([]);
+  private headerValuesAllSource = new BehaviorSubject<TCell[]>([]);
   private pageNumberSource = new BehaviorSubject<number>(1);
   private itemsPerPageSource = new BehaviorSubject<number>(100);
 
-  private headerValuesAll$: Observable<TableCell[]>;
+  private headerValuesAll$: Observable<TCell[]>;
   selectorOptionsAll$: Observable<SelectorOption[][]>;
 
-  private tableFiltered$: Observable<TableCell[][]>;
+  private tableFiltered$: Observable<TCell[][]>;
   private indiceFiltered$: Observable<number[]>;
   tableFilteredRowSize$: Observable<number>;
   itemsPerPage$: Observable<number>;
   pageLength$: Observable<number>;
   pageNumber$: Observable<number>;
-  private tableSliced$: Observable<TableCell[][]>;
+  private tableSliced$: Observable<TCell[][]>;
   tableSlicedTransformed$: Observable<string[][]>;
 
 
@@ -63,15 +63,17 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     /* Input check */
-    console.assert(
-      !this.tableSettings,
-      'テーブル設定が与えられていません。' );
+    console.assert( !this.table$,
+      'テーブルデータが与えられていません。' );
 
-    this.itemsPerPageSource.next( this.tableSettings.itemsPerPageInit );
+    console.assert( !this.settings,
+      '設定が与えられていません。' );
+
+    this.itemsPerPageSource.next( this.settings.itemsPerPageInit );
 
     /* observables */
     this.headerValuesAll$
-      = this.headerValuesSource.asObservable()
+      = this.headerValuesAllSource.asObservable()
               .pipe( debounceTime(300) );
 
     this.indiceFiltered$
@@ -82,7 +84,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
             table.map( (e, i) => ({ val: e, idx: i }) )
               .filter( e => filterFunction(
                               e.val,
-                              this.tableSettings.headerSettings,
+                              this.settings.headerSettings,
                               headerValues ) )
               .map( e => e.idx ) );
 
@@ -97,7 +99,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
           withLatestFrom( this.table$ ),
           map( ([tableFiltered, table]) =>
                   makeSelectOptions(
-                    this.tableSettings.headerSettings,
+                    this.settings.headerSettings,
                     table,
                     tableFiltered ) )
         );
@@ -106,8 +108,8 @@ export class DataTableComponent implements OnInit, OnDestroy {
       = this.tableFiltered$.pipe( map( e => e.length ) );
 
     this.itemsPerPage$
-      = this.itemsPerPageSource.asObservable()
-          .pipe( startWith( this.tableSettings.itemsPerPageInit || 100 ) );
+      = this.itemsPerPageSource.asObservable().pipe( skip(1) )
+          .pipe( startWith( this.settings.itemsPerPageInit || 100 ) );
 
     this.pageLength$
       = combineLatest(
@@ -136,7 +138,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
       = this.tableSliced$.pipe(
           map( table => table.map( line =>
             line.map( (elm, idx) =>
-              this.tableSettings.headerSettings[idx].transform( elm ) ))
+              this.settings.headerSettings[idx].transform( elm ) ))
           ));
             // ( Array.isArray( elm )
             //         ? elm.map( e => this.transform( key, e ) ).join(', ')
@@ -170,6 +172,22 @@ export class DataTableComponent implements OnInit, OnDestroy {
     this.pageNumberSource.next( value );
   }
 
+  headerValueOnChange( columnIndex: number, value: TCell ) {
+    const headerValues = this.headerValuesAllSource.getValue();
+    headerValues[columnIndex] = value;
+    this.headerValuesAllSource.next( headerValues );
+  }
+
+  reset( columnIndex: number ) {
+    this.headerValueOnChange( columnIndex, undefined );
+  }
+
+  resetAll() {
+    const headerValues = this.headerValuesAllSource.getValue();
+    headerValues.fill( undefined );
+    this.headerValuesAllSource.next( headerValues );
+  }
+
   cellOnClick(
     rawData,
     rowIndexInThisPage: number,
@@ -183,28 +201,11 @@ export class DataTableComponent implements OnInit, OnDestroy {
       rowIndex: indexOnRawData(
                   rawData,
                   rowIndexInTableFiltered,
-                  this.tableSettings.headerSettings,
+                  this.settings.headerSettings,
                   headerValues ),
       rowIndexInTableFiltered: rowIndexInTableFiltered,
       columnIndex: columnIndex
     });
   }
 
-
-  headerValueOnChange( columnIndex: number, value: TableCell ) {
-    const headerValues = this.headerValuesSource.getValue();
-    headerValues[columnIndex] = value;
-    this.headerValuesSource.next( headerValues );
-  }
-
-  reset( columnIndex: number ) {
-    this.headerValueOnChange( columnIndex, undefined );
-  }
-
-  resetAll() {
-    const headerValues = this.headerValuesSource.getValue();
-    utils.object.forEach( headerValues,
-        (_, key, obj) => obj[key] = undefined );
-    this.headerValuesSource.next( headerValues );
-  }
 }
