@@ -15,6 +15,7 @@ import { DataTableComponent } from './data-table/data-table.component';
 import { PagenationComponent } from './data-table/pagenation/pagenation.component';
 import { ItemsPerPageComponent } from './data-table/items-per-page.component';
 import { HeaderCellComponent } from './data-table/header-cell.component';
+import { ObjectDataTableComponent } from './data-table/object-data-table.component';
 
 
 
@@ -33,6 +34,7 @@ import { HeaderCellComponent } from './data-table/header-cell.component';
     PagenationComponent,
     ItemsPerPageComponent,
     HeaderCellComponent,
+    ObjectDataTableComponent,
   ],
   exports: [
     MyLibComponent,
