@@ -10,15 +10,19 @@
   <ng-container *ngIf="!!data.table">
 
     <div>
+      <div *ngIf="settings.usepagination" class="pager-wrapper">
         <lib-items-per-page
+            [options]='settings.itemsPerPageOptions'
             [itemsPerPage]='data.itemsPerPage'
             (itemsPerPageChange)="itemsPerPageOnChange( $event )">
         </lib-items-per-page>
+        <lib-pagination
             [itemsPerPage$]='itemsPerPage$'
             [pageLength$]='pageLength$'
             [pageNumber$]='pageNumber$'
             [rowSize$]='tableFilteredRowSize$'
             (pageNumberChange)="pageNumberOnChange( $event )">
+        </lib-pagination>
       </div>
       <button class='reset-button' mat-raised-button (click)="resetAll()">
         Reset All
@@ -34,7 +38,10 @@
               [class.cell-align-center]="header.align === 'c' "
               [class.cell-align-right] ="header.align === 'r' " >
             <lib-header-cell
+              [headerValue]="data.headerValuesAll[idx]"
               [selectorOptions]="data.selectorOptionsAll[idx]"
+              (headerValueChange)="headerValueOnChange( idx, $event )"
+              (reset)="reset( idx )">
             </lib-header-cell>
           </th>
         </tr>
@@ -53,6 +60,7 @@
                         data.table,
                         rowIndex,
                         colIndex,
+                        data.headerValuesAll )">
                 {{ line[colIndex] }}
               </button>
             </ng-template>
@@ -65,15 +73,19 @@
     </table>
 
     <div>
+      <div *ngIf="settings.usepagination" class="pager-wrapper">
         <lib-items-per-page
+            [options]='settings.itemsPerPageOptions'
             [itemsPerPage]='data.itemsPerPage'
             (itemsPerPageChange)="itemsPerPageOnChange( $event )">
         </lib-items-per-page>
+        <lib-pagination
             [itemsPerPage$]='itemsPerPage$'
             [pageLength$]='pageLength$'
             [pageNumber$]='pageNumber$'
             [rowSize$]='tableFilteredRowSize$'
             (pageNumberChange)="pageNumberOnChange( $event )">
+        </lib-pagination>
       </div>
       <div>{{data.tableSlicedTransformed.length}} items</div>
     </div>
