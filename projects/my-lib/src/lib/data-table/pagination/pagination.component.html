@@ -10,7 +10,7 @@
 <ng-container *ngIf="!!data.pageIndice; then main; else loading"></ng-container>
 <ng-template #loading>Loading...</ng-template>
 <ng-template #main>
-  <div class='pagenation'>
+  <div class='pagination'>
     <button mat-raised-button class="navigationButton"
         (click)='setPageNumber(1)'
         [disabled]='data.pageNumber <= 1' >

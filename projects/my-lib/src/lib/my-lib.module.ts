@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { AngularMaterialModule } from './angular-material.module';
+
 import { MyLibComponent } from './my-lib.component';
 
 import { AlertDialogComponent } from './alert-dialog.component';
@@ -9,10 +11,8 @@ import { MessageDialogComponent } from './message-dialog.component';
 
 import { WaitingSpinnerComponent } from './waiting-spinner.component';
 
-import { AngularMaterialModule } from './angular-material.module';
-
 import { DataTableComponent } from './data-table/data-table.component';
-import { PagenationComponent } from './data-table/pagenation/pagenation.component';
+import { PaginationComponent } from './data-table/pagination/pagination.component';
 import { ItemsPerPageComponent } from './data-table/items-per-page.component';
 import { HeaderCellComponent } from './data-table/header-cell.component';
 import { ObjectDataTableComponent } from './data-table/object-data-table.component';
@@ -31,7 +31,7 @@ import { ObjectDataTableComponent } from './data-table/object-data-table.compone
     MessageDialogComponent,
     WaitingSpinnerComponent,
     DataTableComponent,
-    PagenationComponent,
+    PaginationComponent,
     ItemsPerPageComponent,
     HeaderCellComponent,
     ObjectDataTableComponent,
@@ -42,6 +42,11 @@ import { ObjectDataTableComponent } from './data-table/object-data-table.compone
     ConfirmDialogComponent,
     MessageDialogComponent,
     WaitingSpinnerComponent,
+    DataTableComponent,
+    PaginationComponent,
+    ItemsPerPageComponent,
+    HeaderCellComponent,
+    ObjectDataTableComponent,
   ],
 })
 export class MyLibModule { }

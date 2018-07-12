@@ -4,16 +4,16 @@ import { TCell } from '../types/table-cell';
 
 
 export const indexOnRawData = (
-    rawData: any[],
+    rawData: TCell[][],
     indexOnTableFiltered: number,
     headerSettings: HeaderSetting[],
     headerValuesAll: TCell[],
 ): number => {
-  for ( let i = 0, filteredLineNum = 0; i < rawData.length; ++i ) {
+  for ( let i = 0, numberRemaining = 0; i < rawData.length; ++i ) {
     if ( filterFunction( rawData[i], headerSettings, headerValuesAll ) ) {
-      filteredLineNum++;
+      numberRemaining++;
     }
-    if ( filteredLineNum > indexOnTableFiltered ) return i;
+    if ( numberRemaining > indexOnTableFiltered ) return i;
   }
   return rawData.length - 1;
 };

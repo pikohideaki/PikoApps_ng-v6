@@ -12,6 +12,7 @@
   列をメンバ名で指定するためにヘッダ設定に`memberName`を追加して拡張した
   `HeaderSettingForObject`型の配列をヘッダ設定とした
   `TableSettingForObject`型オブジェクトとする．
+<<<<<<< HEAD
 * `TCell`はテーブルの各セルの型の定義である．`TCell`は 
     `TCellPrimitive`, `TCellPrimitive[]`, `Date`
     のunion型とする．
@@ -22,12 +23,17 @@
       `table$`を`number`に変換したデータで渡し，
       `transform`関数として`value => new Date(value)`などを渡して
       表示時点で変換する．
+=======
+* `TCell`はテーブルの各セルの型の定義である．`TCell`は`TCellPrimitive` と `TCellPrimitive[]`, `Date` のunion型とする．
+* `TCellPrimitive`は  `boolean`, `number`, `string` のunion型とする．
+>>>>>>> d1c0de7c7312e0dd64facefab6a3bf628f4c35c7
 * セルのデータが配列の場合は表示では`join(，)`などで文字列化することを想定している
 * 各列のデータ
 
 
 * `filterType`ごとに対応しているセル型は以下の通り．
 
+<<<<<<< HEAD
 | filter type      | cell type        |
 | ---------------- | ---------------- |
 | input            | string           |
@@ -41,3 +47,11 @@
 
 
 
+=======
+| filter type     | cell type        |
+| --------------- | ---------------- |
+| input           | string           |
+| select          | TCellPrimitive   |
+| multiSelect-and | TCellPrimitive[] |
+| multiSelect-or  | TCell            |
+>>>>>>> d1c0de7c7312e0dd64facefab6a3bf628f4c35c7
